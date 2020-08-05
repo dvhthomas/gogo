@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+    mariadb:
+        # https://hub.docker.com/r/bitnami/mariadb/ is
+        # a handy source for MariaDB config ideas
+        image: 'mariadb:latest'
+        ports: 
+            - '3306:3306'
+        volumes: 
+            - ./db/tmp/mysql:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+            - MYSQL_USER=web
+            - MYSQL_PASSWORD=$MYSQL_PASSWORD
+            - MYSQL_DATABASE=snippetbox
+            - MYSQL_CHARACTER_SET=utf8mb4
+            - MYSQL_COLLATE=utf8mb4_unicode_ci
