@@ -15,7 +15,9 @@
     source ~/.zshrc
     ```
 
-### Set up
+The app consists of a Go-based web server and a MariaDB (MySQL compatible) database server.
+
+#### Database server
 
 The docker imager for MariaDB can automatically create a database and user for you. Choose some passwords for your `root` and `web` database users on your local environment.
 
@@ -41,11 +43,12 @@ mysql -u web -p
 mysql> quit
 ```
 
-Load the initial DB schema:
+If that worked it's time to load the initial DB schema:
 
 ```sh
 mysql -h 0.0.0.0 -u web -D snippetbox -p < pkg/models/mysql/schema.sql
 ```
+
 
 ## Teardown
 
@@ -58,6 +61,22 @@ rm -rf db/tmp
 ```
 
 ## Iterative development
+
+First get the web server running. To avoid hardcoding user name and password for the database we'll set some environments up. **Do not** check that in to version control!
+
+```sh
+cd $HOME/project-dir
+export DBUSER='web'
+export DBPASS='something-super-secure-like-password123'
+# include optional arg or default to port 4000
+# The docker image host should be 0.0.0.0 and defaults to an empty value
+$ go run ./cmd/web -addr=":4000" -dbuser=$DBUSER -dbpass=$DBPASS -host='0.0.0.0'
+INFO Etc
+...
+[Ctrl-C to kill]
+```
+
+If the DB connection works you'll see a message telling you. If not, you'll get an ERROR log.
 
 ### Database schema
 
@@ -104,11 +123,6 @@ mysql -h 0.0.0.0 -u root -p
 ******** # 'secret'
 mysql> quit;
 ```
-
-## Create the database and tables
-
-
-
 
 ## Appendix - DB steps you might need
 
