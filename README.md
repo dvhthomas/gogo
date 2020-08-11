@@ -68,8 +68,10 @@ First get the web server running. To avoid hardcoding user name and password for
 cd $HOME/project-dir
 export DBUSER='web'
 export DBPASS='something-super-secure-like-password123'
+export SESSION_SECRET=$(openssl rand -base64 32)
 # include optional arg or default to port 4000
 # The docker image host should be 0.0.0.0 and defaults to an empty value
+$ go run ./com/web -help
 $ go run ./cmd/web -addr=":4000" -dbuser=$DBUSER -dbpass=$DBPASS -host='0.0.0.0'
 INFO Etc
 ...

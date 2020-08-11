@@ -42,6 +42,8 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If the flash data exists this will get the value and remove it,
+	// or return an empty string.
 	app.render(w, r, "show.page.tmpl", &templateData{
 		Snippet: s,
 	})
@@ -73,6 +75,11 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, "create.page.tmpl", &templateData{
 			Form: form,
 		})
+		// Argh! Forgot the return here and couldn't figure
+		// out why errors were getting through. It's because the
+		// rest of the DB insert logic was running regardless.
+		// Watch out for missing 'returns'!
+		return
 	}
 
 	id, err := app.snippets.Insert(
@@ -84,6 +91,10 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 	}
+
+	// If there's no existing session for the user, the middleware will create
+	// the session cookie automatically and *then* put the data in there.
+	app.session.Put(r, "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }

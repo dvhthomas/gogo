@@ -8,10 +8,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"dvhthomas/snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 )
 
 type application struct {
@@ -20,13 +22,16 @@ type application struct {
 	connStr       string
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
+	session       *sessions.Session
 }
 
 func main() {
 	dbUser := flag.String("dbuser", "", "Database user that application runs under")
 	dbPass := flag.String("dbpass", "", "Database password for the application user")
-	dbHost := flag.String("dbhost", "", "Database host")
+	dbHost := flag.String("dbhost", "0.0.0.0", "Database host")
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	// The secret is a random 32 character value used to encrypt and auth cookies
+	secret := flag.String("secret", "", "Secret key for session encryption.\nTry 'openssl rand -base64 32' to generate one")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -44,9 +49,14 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	// Sessions will always expire after 12 hours
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
+		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
