@@ -36,6 +36,10 @@ docker-compose up -d
 
 And then try connecting to the database via the container. Below it shows `gogo-mariadb_1` but use `docker ps` to see what your container is called:
 
+> REMINDER: The container can take a few seconds to start up. It is, after all
+  spinning up an entire MySQL database and a boatload of files in your `./data/`
+  directory. If you get errors connecting, first try waiting a while.
+
 ```sh
 docker exec -it gogo_mariadb_1 bash
 mysql -u web -p
@@ -48,7 +52,6 @@ If that worked it's time to load the initial DB schema:
 ```sh
 mysql -h 0.0.0.0 -u web -D snippetbox -p < pkg/models/mysql/schema.sql
 ```
-
 
 ## Teardown
 
@@ -93,5 +96,5 @@ mysql -h 0.0.0.0 -u web -D snippetbox -p < pkg/models/mysql/schema.sql
 Keep any test data that you might need for testing in the `pkg/models/mysql/test_data.sql` file and load as follows:
 
 ```sh
-mysql -h 0.0.0.0 -u web -D snippetbox -p < pkg/models/mysql/schema.sql
+mysql -h 0.0.0.0 -u web -D snippetbox -p < pkg/models/mysql/test_data.sql
 ```
