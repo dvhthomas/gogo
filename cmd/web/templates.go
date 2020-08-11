@@ -1,8 +1,10 @@
 package main
 
 import (
+	"dvhthomas/snippetbox/pkg/forms"
 	"dvhthomas/snippetbox/pkg/models"
 	"html/template"
+	"net/url"
 	"path/filepath"
 	"time"
 )
@@ -11,6 +13,8 @@ type templateData struct {
 	CurrentYear int
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
+	FormData    url.Values
+	Form        *forms.Form
 }
 
 func humanDate(t time.Time) string {
