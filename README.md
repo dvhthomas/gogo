@@ -72,7 +72,7 @@ export SESSION_SECRET=$(openssl rand -base64 32)
 # include optional arg or default to port 4000
 # The docker image host should be 0.0.0.0 and defaults to an empty value
 $ go run ./com/web -help
-$ go run ./cmd/web -addr=":4000" -dbuser=$DBUSER -dbpass=$DBPASS -host='0.0.0.0'
+$ go run ./cmd/web -secret=$SESSION_SECRET -dbpass=$DBPASS -dbuser=$DBUSER
 INFO Etc
 ...
 [Ctrl-C to kill]
