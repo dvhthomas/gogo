@@ -23,7 +23,11 @@ type templateData struct {
 func humanDate(t time.Time) string {
 	// This is a weird Go-ism where Time.Format lets you define
 	// a string using a specific agreed date (this one!)
-	return t.Format("02 Jan 2006 at 15:04")
+	if t.IsZero() {
+		return ""
+	}
+
+	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
 var functions = template.FuncMap{
