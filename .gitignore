@@ -1,3 +1,5 @@
 .vscode
 db/tmp
 tls/*.pem
+web
+web.exe
