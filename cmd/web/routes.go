@@ -43,6 +43,8 @@ func (app *application) routes() http.Handler {
 		Append(app.requireAuthentication).
 		ThenFunc(app.logoutUser))
 
+	mux.Get("/ping", http.HandlerFunc(ping))
+
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	// ...but we're not adding the session middleware to static routes
 	// because it's inherently stateless content. No cookie required!

@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"dvhthomas/snippetbox/pkg/models"
 	"dvhthomas/snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -26,13 +27,26 @@ type contextKey string
 const contextKeyIsAuthenticated = contextKey("isAuthenticated")
 
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	connStr       string
-	snippets      *mysql.SnippetModel
+	errorLog *log.Logger
+	infoLog  *log.Logger
+	connStr  string
+	// We define the interfaces inline so that both the real implementation
+	// of mysql/snippets.go *and* the mock snippets implementations can
+	// match the interface instead of putting a concrete implementation like
+	// mysql.UserModel in here instead.
+	snippets interface {
+		Insert(string, string, string) (int, error)
+		Get(int) (*models.Snippet, error)
+		Latest() ([]*models.Snippet, error)
+	}
 	templateCache map[string]*template.Template
 	session       *sessions.Session
-	users         *mysql.UserModel
+	// Same for users -- describe the interface and not the concrete implementation.
+	users interface {
+		Insert(string, string, string) error
+		Authenticate(string, string) (int, error)
+		Get(int) (*models.User, error)
+	}
 }
 
 func main() {
