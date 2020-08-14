@@ -17,6 +17,13 @@
 
 The app consists of a Go-based web server and a MariaDB (MySQL compatible) database server.
 
+Set a project directory. Not really needed but it saves typing:
+
+```sh
+export PROJECT=~/projects/gogo
+cd $PROJECT
+```
+
 #### Database server
 
 The docker imager for MariaDB can automatically create a database and user for you. Choose some passwords for your `root` and `web` database users on your local environment.
@@ -53,6 +60,16 @@ If that worked it's time to load the initial DB schema:
 mysql -h 0.0.0.0 -u web -D snippetbox -p < pkg/models/mysql/schema.sql
 ```
 
+## App Server
+
+Generate a TLS key pair so secure hosting works on the localhost. This assumes that Go is installed in a typical location. Check your system for that. The `generate_cert.go` utility is part of every Go distribution:
+
+```sh
+cd $PROJECT/tls
+go run /usr/local/go/src/crypto/tls/generate_cert.go --rsa-bits=2048 --hos
+t=localhost
+```
+
 ## Teardown
 
 If you need a fresh start:
@@ -68,7 +85,7 @@ rm -rf db/tmp
 First get the web server running. To avoid hardcoding user name and password for the database we'll set some environments up. **Do not** check that in to version control!
 
 ```sh
-cd $HOME/project-dir
+cd $PROJECT
 export DBUSER='web'
 export DBPASS='something-super-secure-like-password123'
 export SESSION_SECRET=$(openssl rand -base64 32)

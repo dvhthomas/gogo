@@ -10,12 +10,14 @@ import (
 )
 
 type templateData struct {
-	Flash       string
-	CurrentYear int
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
-	FormData    url.Values
-	Form        *forms.Form
+	Flash           string
+	CurrentYear     int
+	Snippet         *models.Snippet
+	Snippets        []*models.Snippet
+	FormData        url.Values
+	Form            *forms.Form
+	IsAuthenticated bool
+	CSRFToken       string
 }
 
 func humanDate(t time.Time) string {

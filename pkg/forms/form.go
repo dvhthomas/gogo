@@ -3,9 +3,16 @@ package forms
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
+
+// EmailRX is compiled every time, we force the regexp to compile once
+// and store the result. Any failure will immediately cause a pani.
+// This is more performant than re-compiling the pattern with
+// every request.
+var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // Form struct whihc anonymously embeds a url.Values object to
 // hold the form data, and an Errors field to hold any validation errors
@@ -61,6 +68,28 @@ func (f *Form) PermittedValues(field string, opts ...string) {
 	}
 	f.Errors.Add(field, "The field is invalid")
 
+}
+
+// MinLength generates an error if the value is not at least as long is the d value
+func (f *Form) MinLength(field string, d int) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+	if utf8.RuneCountInString(value) < d {
+		f.Errors.Add(field, fmt.Sprintf("This field is too short (minimum is %d characters)", d))
+	}
+}
+
+// MatchesPattern checks the field value against a regular expression
+func (f *Form) MatchesPattern(field string, pattern *regexp.Regexp) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+	if !pattern.MatchString(value) {
+		f.Errors.Add(field, "This field is invalid")
+	}
 }
 
 // Valid returns true if there are no errors for the form
