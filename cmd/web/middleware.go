@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"dvhthomas/snippetbox/pkg/models"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -14,6 +17,40 @@ func secureHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-Frame-Options", "deny")
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// Check if an authenticatedUserID value exists in the session.
+		// If this *IS NOT* present then call the next handler in the chain as
+		// normal.
+		exists := app.session.Exists(r, "authenticatedUserID")
+		if !exists {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Fetch the details of the the current user from the DB. If no matching
+		// value is found or the user has been deactivated, remove the (invalid!)
+		// authenticatedUserID from the their session and call the next
+		// handler in the chain as normal.
+		user, err := app.users.Get(app.session.GetInt(r, "authenticatedUserID"))
+		if errors.Is(err, models.ErrNoRecord) || !user.Active {
+			app.session.Remove(r, "authenticatedUserID")
+			next.ServeHTTP(w, r)
+			return
+		} else if err != nil {
+			app.serverError(w, err)
+			return
+		}
+
+		// OK. If we got here there is an active user session and that user
+		// is both in the DB and Active. We're good! Let's create a copy of the
+		// request and put our value in the context.
+		ctx := context.WithValue(r.Context(), contextKeyIsAuthenticated, true)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

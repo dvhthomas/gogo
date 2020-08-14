@@ -17,6 +17,14 @@ import (
 	"github.com/golangcollege/sessions"
 )
 
+// Rather than using a brittle string all over, we define a type
+// and create context keys on a per-key basis. Strongly typed.
+// NOTE: This should also keep conflicts to other middle keys to
+// a minimum.
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger

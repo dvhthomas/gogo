@@ -10,8 +10,9 @@ import (
 func (app *application) routes() http.Handler {
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	// All dynamic routes will have a session cookie courtesy of golangcollege,
-	// and a CSRF cookie courtesy of noSurf.
-	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	// and a CSRF cookie courtesy of noSurf. Then we add a context value to
+	// show whether the user session includes an authenticated user.
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf, app.authenticate)
 
 	mux := pat.New()
 	// We're adding the session middleware to all the routes...

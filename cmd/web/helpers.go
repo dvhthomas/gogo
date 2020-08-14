@@ -72,5 +72,13 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 // Return true if the current *request* is from an authenticated user, otherwise
 // return false.
 func (app *application) isAuthenticated(r *http.Request) bool {
-	return app.session.Exists(r, "authenticatedUserID")
+	// The type assertion to bool here will default to false if
+	// no value is found. And we return false for error cases.
+	// So basically we're playing it safe with false unless we're positive
+	// it's true: we assume there IS NOT an authenticated user.
+	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
+	if !ok {
+		return false
+	}
+	return isAuthenticated
 }
