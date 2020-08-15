@@ -122,6 +122,12 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 
 	if !form.Valid() {
 		app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		// This return was missing -- caught by a test that was looking
+		// for http.StatusOK but actually got a 303 http.StatusSeeOther
+		// because we should be re-rendering the form (200), but without
+		// this return, it kept going on the redirect below (303)
+		// Testing works!
+		return
 	}
 
 	// Try to create a user record. If the email already exists
